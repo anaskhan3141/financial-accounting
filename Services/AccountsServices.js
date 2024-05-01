@@ -1,4 +1,4 @@
-const pool = require('../Connections/DBConnection')
+const pool = require('../Connections/DBConnection');
 
 
 module.exports = {
@@ -7,11 +7,13 @@ module.exports = {
 
 
             const query = `CREATE TABLE IF NOT EXISTS ${accountName} (
-                            id INT AUTO_INCREMENT PRIMARY KEY,
-                            reference VARCHAR(45),
-                            debit DECIMAL(10,2),
-                            credit DECIMAL(10,2)
-                            );`;
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                reference INT,
+                debit DECIMAL(10,2),
+                credit DECIMAL(10,2),
+                FOREIGN KEY (reference) REFERENCES journal(id)
+            );
+            `;
 
 
             pool.query(query, (error, results) => {
@@ -26,18 +28,18 @@ module.exports = {
     },
 
     addAccountName: async (accountName, accountType) => {
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
             const query = `INSERT INTO accounts (account, account_type) VALUES (?, ?)`
 
             const values = [accountName, accountType]
 
-            pool.query(query, values, (error, results)=>{
+            pool.query(query, values, (error, results) => {
                 if (error) {
                     console.log(error);
                     reject(error)
                 } else {
-                    resolve("successfully added to accounts")                    
+                    resolve("successfully added to accounts")
                 }
             })
 
@@ -63,7 +65,13 @@ module.exports = {
         return new Promise((resolve, reject) => {
 
 
-            const query = `SELECT * FROM ${accountName};`;
+            // const query = `SELECT * FROM ${accountName};`;
+            const query = `SELECT j.date AS journal_date,
+                            j.description AS journal_description,
+                         c.*
+                         FROM journal j
+                        JOIN ${accountName} c ON j.id = c.reference;
+                         `
 
 
             pool.query(query, (error, results) => {
@@ -76,19 +84,18 @@ module.exports = {
         })
 
     },
-    getAccountType: async (accountName) =>{
+    getAllAccounts: async (accountName) => {
 
-        return new Promise((resolve, reject)=>{
+        return new Promise((resolve, reject) => {
 
-            const query = `SELECT account_type FROM accounts WHERE account="${accountName}";
-            `
+            const query = `SELECT * FROM accounts;`
 
-            pool.query(query, (error, results)=>{
+            pool.query(query, (error, results) => {
                 if (error) {
                     reject(error)
-                    
+
                 } else {
-                    resolve(results[0].account_type)
+                    resolve(results)
                 }
             })
 

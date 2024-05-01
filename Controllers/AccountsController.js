@@ -25,17 +25,9 @@ module.exports = {
         const accountName = req.query.accountName;
         (async () => {
             try {
-                const account = await accountsService.getAccount("accounts")
 
-                for (let i = 0; i < account.length; i++) {
-                    if (account[i].account == accountName) {
-                        const result = await accountsService.getAccount(accountName)
-                        console.log(result)
-                        res.send(result)
-                    }
-
-                }
-                res.send('no such account')
+                const result = await accountsService.getAccount(accountName)
+                res.send(result)
 
 
             } catch (error) {
@@ -43,6 +35,35 @@ module.exports = {
 
             }
         })()
+
+    },
+    getAllAccountDetails : async (req, res, next)=>{
+
+        try {
+            let results = [];
+
+            const accounts = await accountsService.getAllAccounts();
+            
+            const promises = accounts.map(async (element) => {
+                const details = await accountsService.getAccount(element.account);
+                return {
+                    accountId:element.id,
+                    accountName: element.account,
+                    details: details
+                };
+            });
+            
+            results = await Promise.all(promises);
+            
+            console.log(results);
+            
+            res.send(results)
+
+        } catch (error) {
+            
+            res.send(error)
+
+        }
 
     }
 }

@@ -1,5 +1,4 @@
 const pool = require('../Connections/DBConnection')
-const { getAllEntries, getEntry } = require('../Controllers/JournalController')
 
 module.exports = {
 
@@ -96,6 +95,23 @@ module.exports = {
                 }
             })
         })
+
+    },
+    deleteAllEntries: async() =>{
+
+       return new Promise((resolve, reject) =>{
+
+            const query = 'DELETE FROM journal;'
+
+            pool.query(query, (error, results)=>{
+                if (error) {
+                    reject(error)   
+                } else {
+                    resolve(results)
+                }    
+            })
+
+       }) 
 
     }
 

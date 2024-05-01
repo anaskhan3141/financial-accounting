@@ -91,6 +91,24 @@ module.exports = {
 
         }
 
+    },
+    deleteAllEntries: async (req, res, next )=> {
+
+        (async()=>{
+            try {
+               journalService.deleteAllEntries((err, results)=>{
+                if (err) {
+                    res.send(err)
+                }else{
+                    res.send(results)
+                }
+                
+               }) 
+            } catch (error) {
+                res.send(error)
+            }
+        })()
+
     }
 
 }
