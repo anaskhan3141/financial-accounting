@@ -3,7 +3,6 @@ const pool = require('../Connections/DBConnection')
 module.exports = {
 
     addJournalEntry: async (description) => {
-
         return new Promise((resolve, reject) => {
 
             const query = `
@@ -25,6 +24,7 @@ module.exports = {
 
     },
     addDebitEntry: async (values) => {
+        console.log('debit entry startj', values);
 
         return new Promise((resolve, reject) => {
 
@@ -38,6 +38,8 @@ module.exports = {
                 if (error) {
                     reject(error)
                 } else {
+                    console.log('debit entry end');
+
                     resolve(results)
                 }
             })
@@ -95,23 +97,6 @@ module.exports = {
                 }
             })
         })
-
-    },
-    deleteAllEntries: async() =>{
-
-       return new Promise((resolve, reject) =>{
-
-            const query = 'DELETE FROM journal;'
-
-            pool.query(query, (error, results)=>{
-                if (error) {
-                    reject(error)   
-                } else {
-                    resolve(results)
-                }    
-            })
-
-       }) 
 
     }
 

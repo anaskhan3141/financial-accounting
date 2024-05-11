@@ -14,10 +14,12 @@ app.use(express.urlencoded({ extended: true }));
 
 const accountsRoute = require('./Routes/AccountRoute')
 const journalRoute = require('./Routes/JournalRoute')
+const inventoryRoute = require ('./Routes/InventoryRoute')
 
 
 app.use('/account', accountsRoute)
 app.use('/journal', journalRoute)
+app.use('/inventory', inventoryRoute)
 
 
 

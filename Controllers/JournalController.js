@@ -1,5 +1,6 @@
 const journalService = require('../Services/JournalServices')
 const accountService = require('../Services/AccountsServices')
+const pool = require('../Connections/DBConnection')
 
 //A L Eq R Ex
 
@@ -13,29 +14,43 @@ module.exports = {
         (async () => {
 
             try {
-                const journalEntry = await journalService.addJournalEntry(description)
+                // Start a MySQL transaction
+                await pool.query('START TRANSACTION');
+            
+                // Add entry to the journal table
+                const journalEntry = await journalService.addJournalEntry(description);
+            
+                // Prepare debit and credit arrays
+                const debitArray = debit.map(innerArray => [journalEntry.insertId, ...innerArray]);
+                const creditArray = credit.map(innerArray => [journalEntry.insertId, ...innerArray]);
+            
+                // Add entries to the debit_entries and credit_entries tables in a batch
+                await Promise.all([
+                    journalService.addDebitEntry(debitArray),
+                    journalService.addCreditEntry(creditArray)
+                ]);
+            
+                // Post to accounts for debit entries
+                await Promise.all(debitArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, element[2], null)));
+            
+                // Post to accounts for credit entries
+                await Promise.all(creditArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, null, element[2])));
+            
+                // Commit the transaction
+                await pool.query('COMMIT');
 
-                const debitArray = debit.map(innerArray => [journalEntry.insertId, ...innerArray])
-                const creditArray = credit.map(innerArray => [journalEntry.insertId, ...innerArray])
-
-
-                const debitEntry = await journalService.addDebitEntry(debitArray)
-                const creditEntry = await journalService.addCreditEntry(creditArray)
-
-                debitArray.forEach(element => {
-                    const result = accountService.postToAccount(element[1], journalEntry.insertId, element[2], null)
-                });
-                creditArray.forEach(element => {
-                    const result = accountService.postToAccount(element[1], journalEntry.insertId, null, element[2])
-                });
-
-                res.send('journal entry added')
+                res.send("journal entry added succesfully")
+            
             } catch (error) {
+                // Rollback the transaction in case of an error
+                await pool.query('ROLLBACK',()=>{
+                    console.log("transaction rolled back");
+                });
                 res.send(error)
             }
-
+            
+    
         })();
-
 
 
     },
@@ -90,24 +105,6 @@ module.exports = {
             res.send(error)
 
         }
-
-    },
-    deleteAllEntries: async (req, res, next )=> {
-
-        (async()=>{
-            try {
-               journalService.deleteAllEntries((err, results)=>{
-                if (err) {
-                    res.send(err)
-                }else{
-                    res.send(results)
-                }
-                
-               }) 
-            } catch (error) {
-                res.send(error)
-            }
-        })()
 
     }
 
