@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 require('dotenv').config();
 
 const pool = require('./Connections/DBConnection')
@@ -7,6 +8,10 @@ const app = express()
 
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use(cors({
+  origin: '*' // Allow requests from this origin only
+}));
+
 
 // Middleware to parse URL-encoded form data
 app.use(express.urlencoded({ extended: true }));

@@ -65,5 +65,17 @@ module.exports = {
 
         }
 
+    },
+    getAllAcountNames: async (req, res, next)=>{
+
+        try {
+            const accounts = await accountsService.getAllAccounts();
+
+            res.send(accounts)
+
+        } catch (error) {
+            res.send(error)
+        }
+
     }
 }

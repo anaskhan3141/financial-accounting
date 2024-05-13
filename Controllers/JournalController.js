@@ -86,6 +86,7 @@ module.exports = {
         try {
 
             const results = await journalService.getAllEntries()
+            console.log(results);
 
             const groupedData = results.reduce((groups, item) => {
                 const group = groups.find(group => group.id === item.id);
@@ -96,9 +97,41 @@ module.exports = {
                 }
                 return groups;
             }, []);
+            const result = []
+            groupedData.forEach(element => {
+                let data = {
+                    id: element.id,
+                    date: element.documents[0].date,
+                    documents: {
+                        debit:[],
+                        credit:[]
+                    }
+                }
+                let debit = []
+                let credit = []
+                element.documents.forEach(item=>{
+                    if (item.debit_account && item.debit_amount) {
+                        if (!data.documents.debit.some(itm => itm.account === item.debit_account)) {
+                            data.documents.debit.push({ account: item.debit_account, amount: item.debit_amount });
 
+                        }
+                    }
+                    if (item.credit_account && item.credit_amount) {
+                        if (!data.documents.credit.some(itm => itm.account === item.credit_account)) {
+                            data.documents.credit.push({ account: item.credit_account, amount: item.credit_amount });
 
-            res.send(groupedData)
+                        }
+
+                    }
+                })
+                // data.documents.push(debit)
+                // data.documents.push(credit)
+
+                result.push(data)
+                
+            });
+
+            res.send(result)
 
         } catch (error) {
 
