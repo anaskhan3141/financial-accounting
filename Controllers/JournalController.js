@@ -9,7 +9,7 @@ module.exports = {
 
     post: async (req, res, next) => {
 
-        const { reference, description, debit, credit } = req.body;
+        const { date, description, debit, credit } = req.body;
 
         (async () => {
 
@@ -18,7 +18,7 @@ module.exports = {
                 await pool.query('START TRANSACTION');
             
                 // Add entry to the journal table
-                const journalEntry = await journalService.addJournalEntry(description);
+                const journalEntry = await journalService.addJournalEntry(date, description);
             
                 // Prepare debit and credit arrays
                 const debitArray = debit.map(innerArray => [journalEntry.insertId, ...innerArray]);
@@ -86,7 +86,6 @@ module.exports = {
         try {
 
             const results = await journalService.getAllEntries()
-            console.log(results);
 
             const groupedData = results.reduce((groups, item) => {
                 const group = groups.find(group => group.id === item.id);
@@ -102,6 +101,7 @@ module.exports = {
                 let data = {
                     id: element.id,
                     date: element.documents[0].date,
+                    description:element.documents[0].description,
                     documents: {
                         debit:[],
                         credit:[]

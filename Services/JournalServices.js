@@ -2,16 +2,16 @@ const pool = require('../Connections/DBConnection')
 
 module.exports = {
 
-    addJournalEntry: async (description) => {
+    addJournalEntry: async (date, description) => {
         return new Promise((resolve, reject) => {
 
             const query = `
             INSERT INTO accounting.journal
-            (description)
+            (date, description)
             VALUES
-            (?);
+            (?, ?);
             `
-            values = [description]
+            values = [date, description]
             pool.query(query, values, (error, results) => {
                 if (error) {
                     reject(error)
