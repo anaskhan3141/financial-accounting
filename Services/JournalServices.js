@@ -24,7 +24,7 @@ module.exports = {
 
     },
     addDebitEntry: async (values) => {
-        console.log('debit entry startj', values);
+        // console.log('debit entry startj', values);
 
         return new Promise((resolve, reject) => {
 
@@ -38,7 +38,7 @@ module.exports = {
                 if (error) {
                     reject(error)
                 } else {
-                    console.log('debit entry end');
+                    // console.log('debit entry end');
 
                     resolve(results)
                 }

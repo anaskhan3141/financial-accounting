@@ -135,6 +135,22 @@ module.exports = {
                 });
         });
     }
+    , 
+    increaseItemQuantity: async (itemId, quantityToIncrease) => {
+        console.log("item increase func");
+        return new Promise((resolve, reject) => {
+
+            pool.query('UPDATE inventory SET quantity = quantity + ? WHERE id = ?',
+                [quantityToIncrease, itemId],
+                (error, results) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(results);
+                    }
+                });
+        });
+    }
 
 }
 

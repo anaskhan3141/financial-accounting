@@ -39,13 +39,13 @@ module.exports = {
 
             try {
                 // Start a MySQL transaction
-                await pool.query('START TRANSACTION');
+                // await pool.query('START TRANSACTION');
 
                 const inventory = await InventoryServices.addItemToInventory(name, category, brand, unit_price, quantity)
 
 
                 // Add entry to the journal table
-                const journalEntry = await journalService.addJournalEntry(description);
+                const journalEntry = await journalService.addJournalEntry(new Date,description);
 
                 // Prepare debit and credit arrays
                 const debitArray = debit.map(innerArray => [journalEntry.insertId, ...innerArray]);
@@ -64,15 +64,15 @@ module.exports = {
                 await Promise.all(creditArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, null, element[2])));
 
                 // Commit the transaction
-                await pool.query('COMMIT');
+                // await pool.query('COMMIT');
 
                 res.send("journal entry added succesfully")
 
             } catch (error) {
                 // Rollback the transaction in case of an error
-                await pool.query('ROLLBACK', () => {
-                    console.log("transaction rolled back");
-                });
+                // await pool.query('ROLLBACK', () => {
+                //     console.log("transaction rolled back");
+                // });
                 res.send(error)
             }
 
@@ -122,54 +122,53 @@ module.exports = {
 
 
             try {
-                await pool.query('START TRANSACTION');
+                // await pool.query('START TRANSACTION');
                 const item = await InventoryServices.getItemFromInventory(id);
-                // if(item.quantity<quantity){
-                //     console.error("Not enough items in the inventory");
-                // }
-                const description = `${quantity} pieces of ${item.name} reutrned`
+                if(item[0].quantity<quantity){
+                    res.send(new Error("not enough items in the inventory"))
+                }else{
+                    const description = `${quantity} pieces of ${item[0].name} returned`
 
 
-                const amount = item[0].unit_price * quantity
-                console.log("amount",amount,);
-                const debit = [[returnToAccount, amount]]
-                const credit = [["merchandise_inventory", amount]]
+                    const amount = item[0].unit_price * quantity
+                    const debit = [[returnToAccount, amount]]
+                    const credit = [["merchandise_inventory", amount]]
+    
+                    // Add entry to the journal table
+                    const journalEntry = await journalService.addJournalEntry(new Date,description);
+    
+                    // Prepare debit and credit arrays
+                    const debitArray = debit.map(innerArray => [journalEntry.insertId, ...innerArray]);
+                    const creditArray = credit.map(innerArray => [journalEntry.insertId, ...innerArray]);
+    
 
-                // Add entry to the journal table
-                const journalEntry = await journalService.addJournalEntry(description);
-                console.log(journalEntry);
-
-                // Prepare debit and credit arrays
-                const debitArray = debit.map(innerArray => [journalEntry.insertId, ...innerArray]);
-                const creditArray = credit.map(innerArray => [journalEntry.insertId, ...innerArray]);
-
-                console.log("debit", debitArray);
-                console.log("credit", creditArray);
-
-                // Add entries to the debit_entries and credit_entries tables in a batch
-                await Promise.all([
-                    journalService.addDebitEntry(debitArray),
-                    journalService.addCreditEntry(creditArray)
-                ]);
-
-                // Post to accounts for debit entries
-                await Promise.all(debitArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, element[2], null)));
-
-                // Post to accounts for credit entries
-                await Promise.all(creditArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, null, element[2])));
-
-                await InventoryServices.reduceItemQuantity(id,quantity)
-
-                // Commit the transaction
-                await pool.query('COMMIT');
-
-                res.send("journal entry added succesfully")
+    
+                    // Add entries to the debit_entries and credit_entries tables in a batch
+                    await Promise.all([
+                        journalService.addDebitEntry(debitArray),
+                        journalService.addCreditEntry(creditArray)
+                    ]);
+    
+                    // Post to accounts for debit entries
+                    await Promise.all(debitArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, element[2], null)));
+    
+                    // Post to accounts for credit entries
+                    await Promise.all(creditArray.map(element => accountService.postToAccount(element[1], journalEntry.insertId, null, element[2])));
+    
+                    await InventoryServices.reduceItemQuantity(id ,quantity)
+    
+                    // Commit the transaction
+                    // await pool.query('COMMIT');
+    
+                    res.send("journal entry added succesfully")
+                }
+                
 
             } catch (error) {
                 // Rollback the transaction in case of an error
-                await pool.query('ROLLBACK', () => {
-                    console.log("transaction rolled back");
-                });
+                // await pool.query('ROLLBACK', () => {
+                //     console.log("transaction rolled back");
+                // });
                 res.send(error)
             }
 

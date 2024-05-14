@@ -10,6 +10,7 @@ module.exports = {
     post: async (req, res, next) => {
 
         const { date, description, debit, credit } = req.body;
+        console.log(req.body);
 
         (async () => {
 
