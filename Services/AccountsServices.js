@@ -30,7 +30,7 @@ module.exports = {
     addAccountName: async (accountName, accountType) => {
         return new Promise((resolve, reject) => {
 
-            const query = `INSERT INTO accounts (account, account_type) VALUES (?, ?)`
+            const query = `INSERT INTO accounts (account, account_type) VALUES (?, ?);`
 
             const values = [accountName, accountType]
 
@@ -65,13 +65,13 @@ module.exports = {
         return new Promise((resolve, reject) => {
 
 
-            // const query = `SELECT * FROM ${accountName};`;
-            const query = `SELECT j.date AS journal_date,
-                            j.description AS journal_description,
-                         c.*
-                         FROM journal j
-                        JOIN ${accountName} c ON j.id = c.reference;
-                         `
+            const query = `SELECT * FROM ${accountName};`;
+            // const query = `SELECT j.date AS journal_date,
+            //                 j.description AS journal_description,
+            //              c.*
+            //              FROM journal j
+            //             JOIN ${accountName} c ON j.id = c.reference;
+            //              `
 
 
             pool.query(query, (error, results) => {
@@ -84,7 +84,7 @@ module.exports = {
         })
 
     },
-    getAllAccounts: async (accountName) => {
+    getAllAccounts: async () => {
 
         return new Promise((resolve, reject) => {
 

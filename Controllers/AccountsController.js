@@ -38,7 +38,7 @@ module.exports = {
 
     },
     getAllAccountDetails : async (req, res, next)=>{
-
+        console.log("trial balance");
         try {
             let results = [];
 

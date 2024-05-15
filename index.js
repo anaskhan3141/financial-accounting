@@ -21,12 +21,14 @@ const accountsRoute = require('./Routes/AccountRoute')
 const journalRoute = require('./Routes/JournalRoute')
 const inventoryRoute = require ('./Routes/InventoryRoute')
 const saleRoute = require ('./Routes/SaleRoute')
+const statementsRoute = require('./Routes/StatementsRoute')
 
 
 app.use('/account', accountsRoute)
 app.use('/journal', journalRoute)
 app.use('/inventory', inventoryRoute)
 app.use('/sale', saleRoute)
+app.use('/statement', statementsRoute)
 
 
 

@@ -18,7 +18,7 @@ module.exports = {
 
             const description = `${quantity} units of ${item[0].name} purchased`
             const debit1 = [["cash", salePrice*quantity]]
-            const credit1 = [["revenue", salePrice*quantity]]
+            const credit1 = [["sales_revenue", salePrice*quantity]]
 
             // Add entry to the journal table
             const journalEntry1 = await journalService.addJournalEntry(new Date, description);
@@ -90,7 +90,7 @@ module.exports = {
             const unitPrice =item[0].unit_price
 
             const description = `${quantity} units of ${item[0].name} sale return`
-            const debit1 = [["revenue", salePrice*quantity]]
+            const debit1 = [["sales_revenue", salePrice*quantity]]
             const credit1 = [["cash", salePrice*quantity]]
 
             // Add entry to the journal table
